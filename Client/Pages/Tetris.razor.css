@@ -1,0 +1,15 @@
+﻿#canvasContainer {
+    margin-left:auto;
+    margin-right:auto;
+    opacity:1;
+    width:500px;
+    height:700px;
+    background-color: black;
+}
+@font-face {
+    font-family: 'MinecraftEvenings';
+    src: url('fonts/MinecraftEvenings.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}

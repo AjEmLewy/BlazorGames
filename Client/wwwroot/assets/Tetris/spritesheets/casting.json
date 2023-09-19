@@ -1,0 +1,14 @@
+{
+  "name": "casting.png",
+  "path": "assets/Tetris/spritesheets/casting.png",
+  "fps": 60,
+  "size": {
+    "Width": 800,
+    "Height": 800
+  },
+  "frameSize": {
+    "Width": 100,
+    "Height": 100
+  },
+  "framesCount": 64
+}

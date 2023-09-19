@@ -1,0 +1,74 @@
+﻿@page "/login"
+@using Gejms.Client.Pages.Account.Models;
+@using Gejms.Client.Shared.Models;
+@using Gejms.Shared.Models;
+@attribute [AllowAnonymous]
+
+@inject UserService UserService
+@inject NavigationManager NavigationManager
+@inject HttpClient httpClient;
+
+<div class="card myForm">
+    <h4 class="card-header myFormTitle">Login</h4>
+    <div class="card-body">
+        <EditForm Model="@loginModel" OnValidSubmit="OnLoginButton">
+            <DataAnnotationsValidator />
+            <div class="form-group">
+                <label>Username</label>
+                <InputText @bind-Value="loginModel.Username" class="form-control" />
+                <ValidationMessage For="@(() => loginModel.Username)" />
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <InputText @bind-Value="loginModel.Password" type="password" class="form-control" />
+                <ValidationMessage For="@(() => loginModel.Password)" />
+            </div>
+            @if (wrongCredentialsTextVisisble)
+            {
+                <div class="myFormErrorMessage">Paaaaanie, złe kredki lub serwer leży.</div>   
+            }
+            <div class="buttonCenterDiv">
+                <button disabled="@buttonInactive" class="btn btn-primary">
+                @if (buttonInactive) 
+                {
+                    <span class="spinner-border spinner-border-sm mr-1"></span>
+                }
+                Login
+            </button>
+            </div>
+            
+            <div>
+                <span style="font-size:0.9em">New here? - </span>  <NavLink href="register" class="btn btn-link">Register</NavLink>
+            </div>
+           
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private LoginUserModel loginModel = new LoginUserModel();
+
+    private bool buttonInactive = false;
+    private bool wrongCredentialsTextVisisble = false;
+
+    private async void OnLoginButton()
+    {
+        buttonInactive = true;
+        wrongCredentialsTextVisisble = false;
+
+        await httpClient.GetAsync("api/tetris");
+
+        try
+        {
+            UserDTO userDTO = new UserDTO { Username = loginModel.Username, Password = loginModel.Password };
+            await UserService.Login(userDTO);
+            NavigationManager.NavigateTo("/");
+        }
+        catch (Exception ex)
+        {
+            buttonInactive = false;
+            wrongCredentialsTextVisisble = true;
+            StateHasChanged();
+        }
+    }
+}

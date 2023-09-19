@@ -1,0 +1,40 @@
+﻿@using Gejms.Client.Assets;
+@inject HttpClient HttpClient
+@inject IAssetsCollection assetsCollection
+
+<div class="assets">
+    @foreach (var item in sprites)
+    {
+        <img name="@item.Name" @ref="item.ElementRef" src="@item.Name" hidden />
+        ;
+    }
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback OnAssetsLoaded { get; set; }
+
+    private readonly List<Sprite> sprites = new();
+    private readonly List<SpriteSheet> spriteSheets = new();
+    private readonly List<Audio> audios = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        string[] tileNames = new[]
+        {
+            "tiles/1.png",
+            "tiles/2.png",
+            "tiles/3.png",
+            "tiles/4.png",
+            "tiles/5.png",
+            "objects/char_solo.png",
+        };
+        foreach (var name in tileNames)
+        {
+            Sprite asset = await assetsCollection.Retrive<Sprite>("assets/Walker/" + name);
+            sprites.Add(asset);
+        }
+
+        await OnAssetsLoaded.InvokeAsync();
+    }
+}

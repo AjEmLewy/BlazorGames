@@ -1,0 +1,14 @@
+{
+  "name": "loading.png",
+  "path": "assets/Tetris/spritesheets/loading.png",
+  "fps": 60,
+  "size": {
+    "Width": 1100,
+    "Height": 1100
+  },
+  "frameSize": {
+    "Width": 100,
+    "Height": 100
+  },
+  "framesCount": 121
+}

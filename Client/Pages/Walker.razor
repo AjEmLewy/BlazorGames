@@ -1,0 +1,78 @@
+﻿@page "/"
+@attribute [Authorize]
+@inject IJSRuntime JsRuntime;
+@inject IAssetsCollection AssetsCollection
+@inject HttpClient httpClient
+
+@using Blazor.Extensions
+@using Blazor.Extensions.Canvas
+@using Blazor.Extensions.Canvas.Canvas2D
+@using Gejms.Client.Assets
+@using Gejms.Client.Games.Walker
+@using Gejms.Client.Shared.GameServices
+
+<PageTitle>Walker</PageTitle>
+
+<WalkerAssets OnAssetsLoaded="OnAssetsLoaded" />
+
+<div id="hiddenCanvasContainer">
+    <BECanvas @ref="canvases[0]" Width="6400" Height="6400"></BECanvas>
+</div>
+
+<div id="canvasContainer">
+    <BECanvas @ref="canvases[1]" Width="640" Height="640"></BECanvas>
+    <BECanvas @ref="canvases[2]" Width="640" Height="640"></BECanvas>
+</div>
+
+
+@code {
+    private BECanvasComponent[] canvases = new BECanvasComponent[3];
+    private bool isInitialized = false;
+    private bool assetsLoaded = false;
+    private WalkerGame game;
+    private InputSystem inputSystem;
+
+    private Canvas2DContext[] canvasContexts = new Canvas2DContext[3];
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (assetsLoaded && !isInitialized)
+        {
+            await JsRuntime.InvokeAsync<object>("initialize", DotNetObjectReference.Create(this));
+            for(int c = 0; c<canvases.Length; ++c)
+                canvasContexts[c] = await canvases[c].CreateCanvas2DAsync();
+            game = new WalkerGame(canvasContexts, AssetsCollection, JsRuntime, httpClient);
+            await game.InitGame();
+            inputSystem = GameServicesCollection.Instance.Get<InputSystem>();
+            isInitialized = true;
+        }
+    }
+
+    protected async Task OnAssetsLoaded()
+    {
+        assetsLoaded = true;
+    }
+
+    [JSInvokable]
+    public async ValueTask GameLoop()
+    {
+        if (isInitialized)
+            await this.game.Iterate();
+    }
+
+    [JSInvokable]
+    public async ValueTask OnKeyDown(int keyCode) => inputSystem.HandleKeyboardKeyDown(keyCode);
+
+
+    [JSInvokable]
+    public async ValueTask OnKeyUp(int keyCode) => inputSystem.HandleKeyboardKeyUp(keyCode);
+
+    [JSInvokable]
+    public async ValueTask OnMouseDown(int keyCode) => inputSystem.HandleMouseKeyDown(keyCode);
+
+    [JSInvokable]
+    public async ValueTask OnMouseUp(int keyCode) => inputSystem.HandleMouseKeyUp(keyCode);
+
+    [JSInvokable]
+    public async ValueTask OnMouseMove(int x, int y) => inputSystem.HandleMouseMove(x, y);
+}

@@ -1,0 +1,74 @@
+﻿@using Gejms.Client.Assets;
+@inject HttpClient HttpClient
+@inject IAssetsCollection assetsCollection
+
+<div class="assets">
+    @foreach(var item in sprites)
+    {
+        <img name="@item.Name" @ref="item.ElementRef" src="@item.Name" hidden />;
+    }
+
+    @foreach(var item in spriteSheets)
+    {
+        <img name="@item.Name" @ref="item.ElementRef" src="@item.Path" hidden />;
+    }
+
+    @foreach(var item in audios)
+    {
+        <audio id="@item.Name" autoplay=@false  src="@item.Path" />;
+    }
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback OnAssetsLoaded { get; set; }
+
+    private readonly List<Sprite> sprites = new();
+    private readonly List<SpriteSheet> spriteSheets = new();
+    private readonly List<Audio> audios = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        string[] tileNames = new[]
+        {
+            "dark.png",
+            "green.png",
+            "ice.png",
+            "red.png"
+        };
+
+        string[] audioNames = new[]
+        {
+            "pew3.mp3",
+            "julek_pa.mp3",
+            "game_over.mp3",
+        };
+
+        string[] spriteSheetNames = new[]
+        {
+            "assets/Tetris/spritesheets/loading.json",
+            "assets/Tetris/spritesheets/casting.json",
+        };
+
+        foreach(var name in tileNames)
+        {
+            Sprite asset = await assetsCollection.Retrive<Sprite>("assets/Tetris/tiles/" + name);
+            sprites.Add(asset);
+        }
+
+        foreach(var name in audioNames)
+        {
+            Audio asset = new Audio("assets/Tetris/sounds/" + name);
+            audios.Add(asset);
+        }
+
+        foreach(var name in spriteSheetNames)
+        {
+            SpriteSheet asset = await assetsCollection.Retrive<SpriteSheet>(name);
+
+            spriteSheets.Add(asset);
+        }
+
+        await OnAssetsLoaded.InvokeAsync();
+    }
+}

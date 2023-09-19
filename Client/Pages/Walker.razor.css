@@ -1,0 +1,17 @@
+﻿#canvasContainer {
+    margin-left: auto;
+    margin-right: auto;
+    opacity: 1;
+    width: 640px;
+    height: 640px;
+    background-color: black;
+}
+
+#hiddenCanvasContainer {
+    display: none;
+}
+
+canvas {
+    background-color: transparent;
+    position: absolute;
+}

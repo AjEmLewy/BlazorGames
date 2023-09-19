@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Gejms</title>
+    <base href="/" />
+    <link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />
+    <link href="css/app.css" rel="stylesheet" />
+    <link href="Gejms.Client.styles.css" rel="stylesheet" />
+</head>
+
+<body>
+    <div id="app">Loading...</div>
+
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+    <script src="_framework/blazor.webassembly.js"></script>
+    <script src="_content/Blazor.Extensions.Canvas/blazor.extensions.canvas.js"></script>
+
+    <script>
+        window.initialize = (dotnetInstance) => {
+            let canvases = document.getElementById("canvasContainer").getElementsByTagName("canvas") || [];
+
+            let canvasCount = canvases.length;
+            if (canvasCount > 0) {
+                for (var c of canvases) {
+                    c.style.position = "absolute";
+                    c.style.backgroundColor = "transparent";
+                }
+            }
+            window.game = {
+                dotnetInstance: dotnetInstance,
+                canvas: canvases.length > 0 ? canvases[canvasCount-1] : null
+            }
+
+            if (window.game.canvas) {
+                window.game.canvas.onblur = e => window.game.canvas.focus();
+
+                window.game.canvas.onkeydown = e => window.game.dotnetInstance.invokeMethodAsync("OnKeyDown", e.keyCode);
+                window.game.canvas.onkeyup = e => window.game.dotnetInstance.invokeMethodAsync("OnKeyUp", e.keyCode);
+
+                window.game.canvas.onmousedown = evt => window.game.dotnetInstance.invokeMethodAsync("OnMouseDown", evt.button);
+                window.game.canvas.onmouseup = evt => window.game.dotnetInstance.invokeMethodAsync("OnMouseUp", evt.button);
+                window.game.canvas.onmousemove = evt => window.game.dotnetInstance.invokeMethodAsync("OnMouseMove", evt.offsetX, evt.offsetY);
+
+                window.game.canvas.oncontextmenu =  e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+
+                window.game.canvas.tabIndex = 0;
+                window.game.canvas.focus();
+            }
+
+            window.requestAnimationFrame(gameLoop);
+        }
+
+        function gameLoop (timeStamp) {
+            window.requestAnimationFrame(gameLoop);
+            window.game.dotnetInstance.invokeMethodAsync("GameLoop");
+        }
+
+        window.playBackgroundMusic = (id) => {
+            var audio = document.getElementById(id);
+            audio.load();
+            audio.play();
+        }
+    </script>
+</body>
+
+</html>
